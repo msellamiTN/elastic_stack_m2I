@@ -1,0 +1,22 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /files/*.json
+
+output.elasticsearch:
+  hosts: ["https://es01:9200", "https://es02:9200", "https://es03:9200"]
+  username: "elastic"
+  password: "1Cge99g6yEs3s4406vWk"
+  protocol: "https"
+  ssl.certificate_authorities: ["ca.crt"]
+  index: "filebeat_emails_lab4_v3_trusted"
+  pipeline: "filebeat_emails_pipeline"
+setup.template.name: "filebeat_emails_lab4_v3_trusted_template"
+setup.template.pattern: "filebeat_emails_lab4_v3_trusted-*"
+setup.template.settings:
+  index.number_of_shards: 1
+
+
+
+xpack.monitoring.enabled: true

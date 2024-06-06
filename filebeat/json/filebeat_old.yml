@@ -1,0 +1,65 @@
+filebeat.modules:
+- module: system
+  syslog:
+    enabled: true
+  auth:
+    enabled: true
+
+- module: apache2
+  access:
+    enabled: true
+  error:
+    enabled: true
+
+- module: auditd
+  log:
+    enabled: true
+
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/lib/docker/containers/*/*.log
+  stream: all
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
+processors:
+- add_cloud_metadata: ~
+- add_docker_metadata: ~
+- add_locale:
+    format: offset
+- add_host_metadata:
+    netinfo.enabled: true
+
+output.elasticsearch:
+  hosts: ["https://${ELASTICSEARCH_HOSTS}"]
+  username: "${ELASTICSEARCH_USERNAME}"
+  password: "${ELASTICSEARCH_PASSWORD}"
+  ssl.certificate_authorities: ["/usr/share/filebeat/config/certs/ca/ca.crt"]
+  ssl.certificate: "/usr/share/filebeat/config/certs/client/client.crt"
+  ssl.key: "/usr/share/filebeat/config/certs/client/client.key"
+
+setup.kibana:
+  host: "https://kibana:5601"
+  username: "${ELASTICSEARCH_USERNAME}"
+  password: "${ELASTICSEARCH_PASSWORD}"
+  ssl.certificate_authorities: ["/usr/share/filebeat/config/certs/ca/ca.crt"]
+  ssl.certificate: "/usr/share/filebeat/config/certs/client/client.crt"
+  ssl.key: "/usr/share/filebeat/config/certs/client/client.key"
+
+setup.dashboards:
+  enabled: true
+
+xpack.monitoring:
+  enabled: true
+  elasticsearch:
+    hosts: ["https://${ELASTICSEARCH_HOSTS}"]
+    username: "${ELASTICSEARCH_USERNAME}"
+    password: "${ELASTICSEARCH_PASSWORD}"
+    ssl.certificate_authorities: ["/usr/share/filebeat/config/certs/ca/ca.crt"]
+    ssl.certificate: "/usr/share/filebeat/config/certs/client/client.crt"
+    ssl.key: "/usr/share/filebeat/config/certs/client/client.key"
